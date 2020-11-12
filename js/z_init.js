@@ -1,3 +1,1 @@
-
-
-document.addEventListener('DOMContentLoaded',function(){opdGame.init();});
+document.addEventListener('DOMContentLoaded', () => { opdGame.init(); });

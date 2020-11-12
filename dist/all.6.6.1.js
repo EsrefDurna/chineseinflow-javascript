@@ -448,14 +448,13 @@ opdWrapper=(function(){
 }());
 
 
-
-var opdGame = {};
+const opdGame = {};
 opdGame.active = false;
 opdGame.Views = {};
 opdGame.Modules = {};
 
 opdGame.init = function () {
-	//sometimes the 'DOMContentLoaded' event fires twice on the same page
+	// sometimes the 'DOMContentLoaded' event fires twice on the same page
 	if (!opdGame.active) {
 		opdGame.active = true;
 		console.log(opdGame.model.version);
@@ -472,15 +471,15 @@ opdGame.init = function () {
 		if (createjs.BrowserDetect.isIOS) opdGame.model.touchMode = true;
 		if (createjs.BrowserDetect.isAndroid) opdGame.model.touchMode = true;
 
-		//if this is set to true, then view will only init when
-		//browser url matches model.siteUrl - see controller.init()
+		// if this is set to true, then view will only init when
+		// browser url matches model.siteUrl - see controller.init()
 		opdGame.model.siteLock = false;
 
 		opdGame.controller.init();
 	}
 };
 
-(function (oG) { // checked
+function modelInit(oG) { // checked
 	oG.model = {
 		version: 'v4.7',
 		orientation: 0,
@@ -537,21 +536,26 @@ opdGame.init = function () {
 		siteLock: false,
 		touchMode: false,
 	};
-}(opdGame));
+}
+modelInit(opdGame);
 
-// this gets the highscore stuff using model.scoresUrl and model.scoresTable
-(function (oG) {
+function scoresModel(oG) {
 	let myReq = new XMLHttpRequest();
 	let callback = function (jsonArr) { };
 
 	function getScoresLoc(getType, playerName, playerLocation) {
+		const gotScores = function gotScores() {
+			if (myReq.readyState == 4 && myReq.status == 200) {
+				const jsonArr = JSON.parse(myReq.responseText);
+				callback(jsonArr);
+				myReq.removeEventListener('readystatechange', gotScores);
+			}
+		};
 		myReq = new XMLHttpRequest();
 		myReq.addEventListener('readystatechange', gotScores);
 		myReq.open('POST', oG.model.scoresUrl, true);
 		myReq.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
 		const dMoves = 0;
-
 		let myVars = `name=${playerName}`;
 		myVars += `&local=${playerLocation}`;
 		myVars += `&score=${oG.model.gameScore}`;
@@ -566,21 +570,14 @@ opdGame.init = function () {
 		myReq.send(myVars);
 	}
 
-	function gotScores() {
-		if (myReq.readyState == 4 && myReq.status == 200) {
-			const jsonArr = JSON.parse(myReq.responseText);
-			callback(jsonArr);
-			myReq.removeEventListener('readystatechange', gotScores);
-		}
-	}
-
 	function setCallbackLoc(myFun) { callback = myFun; }
 
 	oG.scoresModel = {
 		getScores: getScoresLoc,
 		setCallback: setCallbackLoc,
 	};
-}(opdGame));
+}
+scoresModel(opdGame);
 
 (function (oG) {
 	const audFrames = [];
@@ -1257,7 +1254,7 @@ opdGame.init = function () {
 	oG.audioVars = { getAudFrames: getAudFramesLoc };
 }(opdGame));
 
-(function (oG) { // checked
+function ContentLoader(oG) { // checked
 	function contentLoader() {
 		this.EventDispatcher_constructor();
 		this.imagesLoadedFun = this.imagesLoaded.bind(this);
@@ -1268,18 +1265,20 @@ opdGame.init = function () {
 	}
 	const p = createjs.extend(contentLoader, createjs.EventDispatcher);
 
-	p.setup = function () {
+	p.setup = function setup() {
 		this.myContentLoader = null;
 		this.needToCheckContext = true;
 		createjs.Sound.alternateExtensions = ['mp3'];
 	};
 
-	p.loadContentSet = function (gVar) {
+	p.loadContentSet = function loadContentSet(gVar) {
 		this.gVar = gVar;
 		this.retriedOnce = false;
 		this.retriedOnceAudio = false;
 
-		if (this.needToCheckContext) this.checkContext();
+		if (this.needToCheckContext) {
+			this.checkContext();
+		}
 
 		createjs.Sound.removeSound('soundId');
 		oG.model.audioLoaded = false;
@@ -1303,7 +1302,7 @@ opdGame.init = function () {
 		}
 	};
 
-	p.loadImages = function () {
+	p.loadImages = function loadImages() {
 		this.myManifest = [{ src: `${oG.model.imsFolder}bc_${this.gVar}.png`, id: 'mySprite' }];
 		this.myContentLoader = new createjs.LoadQueue(false);
 		this.myContentLoader.addEventListener('error', this.imagesLoadErrorFun);
@@ -1311,7 +1310,7 @@ opdGame.init = function () {
 		this.myContentLoader.loadManifest(this.myManifest, true);
 	};
 
-	p.imagesLoadError = function () {
+	p.imagesLoadError = function imagesLoadError() {
 		this.clearupContentLoader();
 		if (!this.retriedOnce) {
 			console.log('Load Error - retrying one time');
@@ -1323,7 +1322,7 @@ opdGame.init = function () {
 		}
 	};
 
-	p.imagesLoaded = function () {
+	p.imagesLoaded = function imagesLoaded() {
 		const frms = oG.imageVars.getImFrames(this.gVar);
 		oG.model.contentSpriteSheet = new createjs.SpriteSheet({
 			images: [this.myContentLoader.getResult('mySprite')],
@@ -1340,7 +1339,7 @@ opdGame.init = function () {
 		}
 	};
 
-	p.loadAudio = function () {
+	p.loadAudio = function loadAudio() {
 		const myAuSpri = oG.audioVars.getAudFrames(this.gVar);
 		this.audManifest = [{ src: `${oG.model.audFolder}a_${this.gVar}.ogg`, id: 'soundId', data: { audioSprite: myAuSpri } }];
 		this.myContentLoader = new createjs.LoadQueue(false);
@@ -1350,7 +1349,7 @@ opdGame.init = function () {
 		this.myContentLoader.loadManifest(this.audManifest, true);
 	};
 
-	p.audioLoadError = function () {
+	p.audioLoadError = function audioLoadError() {
 		this.clearupContentLoader();
 		oG.model.audioLoaded = false;
 		if (!this.retriedOnceAudio) {
@@ -1362,13 +1361,13 @@ opdGame.init = function () {
 		}
 	};
 
-	p.audioLoaded = function () {
+	p.audioLoaded = function audioLoaded() {
 		oG.model.audioLoaded = true;
 		this.clearupContentLoader();
 		this.dispatchEvent('audComplete');
 	};
 
-	p.clearupContentLoader = function () {
+	p.clearupContentLoader = function clearupContentLoader() {
 		this.myContentLoader.removeEventListener('complete', this.audioLoadedFun);
 		this.myContentLoader.removeEventListener('error', this.audioLoadErrorFun);
 		this.myContentLoader.removeEventListener('complete', this.contentLoadedFun);
@@ -1378,9 +1377,10 @@ opdGame.init = function () {
 	};
 
 	oG.Modules.ContentLoader = createjs.promote(contentLoader, 'EventDispatcher');
-}(opdGame));
+}
+ContentLoader(opdGame);
 
-(function (oG) {
+function ContentView(oG) {
 	function ContentView() {
 		this.Container_constructor();
 		this.clickerFun = this.clicker.bind(this);
@@ -1626,9 +1626,10 @@ opdGame.init = function () {
 	};
 
 	oG.Views.ContentView = createjs.promote(ContentView, 'Container');
-}(opdGame));
+}
+ContentView(opdGame);
 
-(function (oG) { // checked
+function ContentItem(oG) { // checked
 	function ContentItem() {
 		this.Container_constructor();
 		this.ind = 0;
@@ -1676,7 +1677,9 @@ opdGame.init = function () {
 	};
 
 	oG.Modules.ContentItem = createjs.promote(ContentItem, 'Container');
-}(opdGame));
+}
+
+ContentItem(opdGame);
 
 (function (oG) { // checked
 	let contentLoader = null;

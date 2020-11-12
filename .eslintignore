@@ -1,0 +1,4 @@
+**.spec.jsx
+dist
+/dist/*
+/dist
