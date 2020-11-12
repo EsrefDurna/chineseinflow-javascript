@@ -1,5 +1,5 @@
-(function (oG) { // checked
-	const CountdownTimer = function () {
+function countdowntimer(oG) { // checked
+	const CountdownTimer = function CountdownTimer() {
 		this.Container_constructor();
 		this.countdownFun = this.countdown.bind(this);
 		this.setup();
@@ -133,4 +133,6 @@
 	};
 
 	oG.Modules.CountdownTimer = createjs.promote(CountdownTimer, 'Container');
-}(opdGame));
+}
+
+countdowntimer(opdGame);

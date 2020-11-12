@@ -1740,8 +1740,8 @@ ContentItem(opdGame);
 	oG.controller = out;
 }(opdGame));
 
-(function (oG) { // checked
-	const CountdownTimer = function () {
+function countdowntimer(oG) { // checked
+	const CountdownTimer = function CountdownTimer() {
 		this.Container_constructor();
 		this.countdownFun = this.countdown.bind(this);
 		this.setup();
@@ -1875,7 +1875,9 @@ ContentItem(opdGame);
 	};
 
 	oG.Modules.CountdownTimer = createjs.promote(CountdownTimer, 'Container');
-}(opdGame));
+}
+
+countdowntimer(opdGame);
 
 (function (oG) { // checked
 	function EndView() {

@@ -1,4 +1,4 @@
-function ContentView(oG) {
+function contentView(oG) {
 	function ContentView() {
 		this.Container_constructor();
 		this.clickerFun = this.clicker.bind(this);
@@ -245,9 +245,9 @@ function ContentView(oG) {
 
 	oG.Views.ContentView = createjs.promote(ContentView, 'Container');
 }
-ContentView(opdGame);
+contentView(opdGame);
 
-function ContentItem(oG) { // checked
+function contentItem(oG) { // checked
 	function ContentItem() {
 		this.Container_constructor();
 		this.ind = 0;
@@ -297,4 +297,4 @@ function ContentItem(oG) { // checked
 	oG.Modules.ContentItem = createjs.promote(ContentItem, 'Container');
 }
 
-ContentItem(opdGame);
+contentItem(opdGame);
